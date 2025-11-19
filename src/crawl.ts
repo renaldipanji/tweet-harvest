@@ -267,7 +267,11 @@ export async function crawl({
 
               const tweetContent = result.legacy || result.tweet.legacy;
               const userContent =
-                result.core?.user_results?.result?.legacy || result.tweet.core.user_results.result.legacy;
+                  result.core?.user_results?.result?.legacy ||
+                  result.tweet?.core?.user_results?.result?.legacy ||
+                  result.author?.legacy ||
+                  result.user_results?.result?.legacy ||
+                  {};
 
               return {
                 tweet: tweetContent,
@@ -317,10 +321,17 @@ export async function crawl({
             }
 
             tweet["full_text"] = cleanTweetText;
-            tweet["username"] = current.user.screen_name;
+            tweet["username"] = current.user?.screen_name || current.user?.name ||
+              result.core?.user_results?.result?.legacy?.screen_name ||
+              result.author?.legacy?.screen_name ||
+            "";
             tweet["tweet_url"] = `https://x.com/${current.user.screen_name}/status/${tweet.id_str}`;
             tweet["image_url"] = current.tweet.entities?.media?.[0]?.media_url_https || "";
-            tweet["location"] = current.user.location || "";
+            tweet["location"] =
+              current.user?.location ||
+              result.core?.user_results?.result?.legacy?.location ||
+              result.author?.legacy?.location ||
+              "";
             tweet["in_reply_to_screen_name"] = current.tweet.in_reply_to_screen_name || "";
 
             return tweet;
